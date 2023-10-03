@@ -53,9 +53,37 @@ $client = $clientBuilder->buildAuthenticatedByPassword(
 //Authenticate
 $token = $client->getToken();
 
+
+
+
+
+//REFERENCE ENTITIES + RECORDS
+$refApiRequest = $client->getReferenceEntityApi()->all();
+$referenceEntities = [];
+foreach($refApiRequest as $referenceEntitiy) {
+    $referenceEntities[$referenceEntitiy['code']] = null;
+}
+
+foreach($referenceEntities as $key => $value) {
+    $referenceEntityRecords = $client->getReferenceEntityRecordApi()->all($key);
+    $count = 0;
+    foreach($referenceEntityRecords as $records) {
+        $count++;
+        $referenceEntities[$key] = $count;
+    }
+    $count = 0;
+}
+
+echo "Reference Entities: \n";
+foreach($referenceEntities as $key => $value) {
+    echo "Name: " . $key . " - " . $value . "\n" ?? "0 \n" . " record(s). \n";
+}
+
+echo "End Reference Entities. \n";
+
 //Build Search Query
 $searchBuilder = new SearchBuilder();
-$searchBuilder->addFilter('enabled', '=', true);
+//$searchBuilder->addFilter('enabled', '=', true);
 $searchFilters = $searchBuilder->getFilters();
 
 // ASSET FAMILIES + NUMBER OF ASSETS
@@ -81,90 +109,91 @@ foreach ($assetFamilies as $assetFamily) {
     ];
 }
 
-//echo "Breakdown of Asset Families: \n";
-//var_dump($assetFamilyWithNumberOfAssets);
-//echo "End of Asset Families.\n\n";
-
-//Get Duplicate Family attributes
-$familiesWithAttributeRequirements = [];
-$families = $client->getFamilyApi()->all(100);
-//$families[] = $client->getFamilyApi()->get('accessories');
-
-foreach ($families as $family) {
-    $familiesWithAttributeRequirements[$family['code']] = [
-        'attributes' => $family['attributes'],
-        'attribute_requirements' => $family['attribute_requirements'],
-    ];
-    $attributeWithType = [];
-    foreach ($family['attributes'] as $attribute) {
-        $attributeType = $client->getAttributeApi()->get($attribute)['type'];
-        $attributeWithType[] = [
-            'attribute' => $attribute,
-            'attribute_type' => $attributeType
-        ];
+echo "Breakdown of Asset Families: \n";
+foreach ($assetFamilyWithNumberOfAssets as $key => $value) {
+    echo "Asset Family: " . $key . " - " . $value['asset_count'] . " Assets \n";
+    if(isset($value['naming_convention']['pattern'])) {
+        echo isset($value['naming_convention']) ? "Naming Convention: " . $value['naming_convention']['pattern'] . "\n" : "";
     }
-    $familiesWithAttributeRequirements[$family['code']]['attributes'] = $attributeWithType;
-    $attributeWithType = [];
-}
-
-$requiredAttribute = [];
-
-echo "Breakdown of Families and their attributes \n";
-foreach ($familiesWithAttributeRequirements as $key => $values) {
-    echo "Family: '" . $key . "'\n";
-    foreach ($values['attributes'] as $attribute) {
-        foreach ($values['attribute_requirements'] as $key => $value) {
-            if (in_array($attribute['attribute'], $value)) {
-                $requiredAttribute[$attribute['attribute']][] = $key;
-            }
+    if (isset($value['product_link_rule'])) {
+        foreach ($value['product_link_rule'] as $plr) {
+            var_dump($plr);
         }
-
-        echo $attribute['attribute'] . " - " . strtolower($ATTRIBUTE_TYPES[$attribute['attribute_type']]);
-        if (isset($requiredAttribute[$attribute['attribute']])) {
-            echo " (Required for channel(s): " . implode(", ", $requiredAttribute[$attribute['attribute']]) . ")";
-        }
-        echo "\n";
-
-        unset($requiredAttribute);
     }
-}
-echo "End of Families + Attributes \n\n";
-die;
 
+//    echo isset($value['naming_convention']) ? "Link Rule: "
+//        . $value['product_link_rule']['product_selection'] . " assigned to: "
+//        . $value['product_link_rule']['assign_asset_to'] . ".\n" : "";
+}
+echo "End of Asset Families.\n\n";
 
 //PRODUCTS + ASSOCIATIONS
 // Get all products (all pages), save into $apiRequest object
-$apiRequest = $client->getProductApi()->listPerPage($perPage, true, ['search' => $searchFilters]);
-$firstPage = $apiRequest->getFirstPage()->getItems();
-
-echo("Products + Models Found: " . $totalProducts = $apiRequest->getCount() . "\n");
+$apiRequest = $client->getProductApi()->all();
+//$firstPage = $apiRequest->getFirstPage()->getItems();
 
 //Go through first page from API response
-$productWithAssocs = aggregateAssociationsPerProduct($firstPage, $productWithAssocs);
+$productWithAssocs = aggregateAssociationsPerProduct($apiRequest);
 
-//Calculate number of pages for products
-$numberOfPages = (int)($totalProducts / $perPage);
+echo("Products + Models Found: " . count($productWithAssocs) . "\n");
 
-//For each page get the data, and aggregate number of associations
-//TODO: this is stupid.
-for ($i = 0; $i < $numberOfPages; $i++) {
-    $apiRequest = $apiRequest->getNextPage();
-    $nextPageItems = $apiRequest->getItems();
-    $nextListOfAssociations = aggregateAssociationsPerProduct($nextPageItems, $productWithAssocs);
-    $productWithAssocs = array_merge($nextListOfAssociations, $productWithAssocs);
-}
-
-//Resulting array listing products with number of associations.
-//Only show products with 1 or more associations.
 //Ordered by number of associations.
 arsort($productWithAssocs);
 
-//echo "Products with 1 or more associations: \n";
-//foreach ($productWithAssocs as $key => $value) {
-//    if ($value > 0) {
-//        echo $_ENV["BASE_URI"] . "#/enrich/product/" . $key . " = " . $value . "\n";
+//Only show products with 1 or more associations.
+echo "Products with 1 or more associations: \n";
+foreach ($productWithAssocs as $key => $value) {
+    if ($value > 0) {
+        echo $_ENV["BASE_URI"] . "#/enrich/product/" . $key . " = " . $value . "\n";
+    }
+}
+
+//Get Duplicate Family attributes
+//$familiesWithAttributeRequirements = [];
+//$families = $client->getFamilyApi()->all(100);
+////$families[] = $client->getFamilyApi()->get('accessories');
+//
+//foreach ($families as $family) {
+//    $familiesWithAttributeRequirements[$family['code']] = [
+//        'attributes' => $family['attributes'],
+//        'attribute_requirements' => $family['attribute_requirements'],
+//    ];
+//    $attributeWithType = [];
+//    foreach ($family['attributes'] as $attribute) {
+//        $attributeType = $client->getAttributeApi()->get($attribute)['type'];
+//        $attributeWithType[] = [
+//            'attribute' => $attribute,
+//            'attribute_type' => $attributeType
+//        ];
+//    }
+//    $familiesWithAttributeRequirements[$family['code']]['attributes'] = $attributeWithType;
+//    $attributeWithType = [];
+//}
+//
+//$requiredAttribute = [];
+//
+//echo "Breakdown of Families and their attributes \n";
+//foreach ($familiesWithAttributeRequirements as $key => $values) {
+//    echo "Family: '" . $key . "'\n";
+//    foreach ($values['attributes'] as $attribute) {
+//        foreach ($values['attribute_requirements'] as $key => $value) {
+//            if (in_array($attribute['attribute'], $value)) {
+//                $requiredAttribute[$attribute['attribute']][] = $key;
+//            }
+//        }
+//
+//        echo $attribute['attribute'] . " - " . strtolower($ATTRIBUTE_TYPES[$attribute['attribute_type']]);
+//        if (isset($requiredAttribute[$attribute['attribute']])) {
+//            echo " (Required for channel(s): " . implode(", ", $requiredAttribute[$attribute['attribute']]) . ")";
+//        }
+//        echo "\n";
+//
+//        unset($requiredAttribute);
 //    }
 //}
+//echo "End of Families + Attributes \n\n";
+//die;
+
 
 /**
  * Function to retrieve the number of associations per product
@@ -172,7 +201,7 @@ arsort($productWithAssocs);
  * @param $productWithAssocs
  * @return array
  */
-function aggregateAssociationsPerProduct($page, $productWithAssocs): array
+function aggregateAssociationsPerProduct($page): array
 {
     //Run through each product, and capture their 'associations'.
     //Taking each assoc, count the number
