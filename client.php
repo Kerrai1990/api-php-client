@@ -52,13 +52,34 @@ $client = $clientBuilder->buildAuthenticatedByPassword(
 //Authenticate
 $token = $client->getToken();
 
-echo "Analysing Reference Entities...";
+echo "### ###  ###  ##  #### ##    ####   #### ##    ####   ### ###   ## ## \n";
+echo "##  ##    ## ##  # ## ##     ##    # ## ##     ##     ##  ##  ##   ## \n";
+echo "##       # ## #    ##        ##      ##        ##     ##      #### \n";
+echo "## ##    ## ##     ##        ##      ##        ##     ## ##    ##### \n";
+echo "##       ##  ##    ##        ##      ##        ##     ##          ### \n";
+echo "##  ##   ##  ##    ##        ##      ##        ##     ##  ##  ##   ## \n";
+echo "### ###  ###  ##   ####      ####    ####      ####   ### ###   ## ## \n";
+echo "Analysing Reference Entities... \n";
 analyzeReferenceEntities($client);
 
-echo "Analysing Asset Families...";
+echo " ###     #####    #####   #######   # #####  ##### \n";
+echo "## ##   ##   ##  ##   ##   ##   #  ## ## ## ##   ## \n";
+echo "##   ##  ##       ##        ##         ##    ## \n";
+echo "##   ##   #####    #####    ####       ##     ##### \n";
+echo "#######       ##       ##   ##         ##         ## \n";
+echo "##   ##  ##   ##  ##   ##   ##   #     ##    ##   ## \n";
+echo "##   ##   #####    #####   #######    ####    ##### \n";
+echo "Analysing Asset Families... \n";
 analyzeAssetFamilies($client);
 
-echo "Analysing Product Associations... This might take a while...";
+echo " ##      ####     ####     ####     ####     #### \n";
+echo "####    ##  ##   ##  ##   ##  ##   ##  ##   ##  ## \n";
+echo "##  ##   ##       ##       ##  ##   ##       ## \n";
+echo "######    ####     ####    ##  ##   ##        #### \n";
+echo "##  ##       ##       ##   ##  ##   ##           ## \n";
+echo "##  ##   ##  ##   ##  ##   ##  ##   ##  ##   ##  ## \n";
+echo "##  ##    ####     ####     ####     ####     #### \n";
+echo "Analysing Product Associations... This might take a while... \n";
 analyzeProductAssociations($client);
 
 /**
@@ -80,18 +101,17 @@ function analyzeReferenceEntities($client): void
         $count = 0;
         foreach ($referenceEntityRecords as $records) {
             $count++;
-            $referenceEntities[$key] = $count ?? 0;
+            $referenceEntities[$key] = ($count == "") ? "0" : $count ;
         }
-        $count = 0;
     }
 
     asort($referenceEntities);
 
     echo "Reference Entities: \n";
     foreach ($referenceEntities as $key => $value) {
-        echo "Name: " . $key . " - " . $value . " record(s). \n";
+        echo "- " . $key . " - " . $value . " record(s). \n";
     }
-    echo "End Reference Entities. \n";
+    echo "End of Reference Entities. \n\n";
 }
 
 /**
@@ -123,12 +143,18 @@ function analyzeAssetFamilies($client): void
             'product_link_rule' => $assetFamilyProductLinkRule,
         ];
 
-        asort($assetFamilyWithNumberOfAssets);
+        ksort($assetFamilyWithNumberOfAssets);
     }
 
     echo "Breakdown of Asset Families: \n";
     foreach ($assetFamilyWithNumberOfAssets as $key => $value) {
-        echo "Asset Family: " . $key . " - " . $value['asset_count'] . " Assets \n";
+        echo "- " . $key . " - " . $value['asset_count'] . " Assets \n";
+    }
+
+    //PLR configs:
+    echo "\n Product Link Rules: \n";
+    foreach($assetFamilyWithNumberOfAssets as $key => $value) {
+        echo "- " . $key . "\n";
         if (isset($value['naming_convention']['pattern'])) {
             echo isset($value['naming_convention']) ? "Naming Convention: " . $value['naming_convention']['pattern'] . "\n" : "";
         }
@@ -201,7 +227,6 @@ function aggregateAssociationsPerProduct($page): array
                 $productsModelsFound = count($product["associations"][$key]["product_models"]);
                 $productWithAssocs[$product["uuid"]] += ($productsFound + $productsModelsFound);
             }
-            echo "Product: " . $product['uuid'] . " - " . $productWithAssocs[$product['uuid']] . "associations \n";
         }
     }
 
