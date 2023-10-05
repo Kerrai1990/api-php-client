@@ -96,20 +96,21 @@ function analyzeReferenceEntities($client): void
         $referenceEntities[$referenceEntitiy['code']] = null;
     }
 
+    //TODO - this is stupid.
     foreach ($referenceEntities as $key => $value) {
         $referenceEntityRecords = $client->getReferenceEntityRecordApi()->all($key);
         $count = 0;
         foreach ($referenceEntityRecords as $records) {
             $count++;
-            $referenceEntities[$key] = ($count == "") ? "0" : $count ;
         }
+        $referenceEntities[$key] = $count;
     }
 
     asort($referenceEntities);
 
     echo "Reference Entities: \n";
     foreach ($referenceEntities as $key => $value) {
-        echo "- " . $key . " - " . $value . " record(s). \n";
+        echo "- " . "\033[31m" . $key . "\033[0m" . " - " . $value . " record(s). \n";
     }
     echo "End of Reference Entities. \n\n";
 }
@@ -148,16 +149,17 @@ function analyzeAssetFamilies($client): void
 
     echo "Breakdown of Asset Families: \n";
     foreach ($assetFamilyWithNumberOfAssets as $key => $value) {
-        echo "- " . $key . " - " . $value['asset_count'] . " Assets \n";
+        echo "- " . "\033[31m" . $key . "\033[0m" . " - " . $value['asset_count'] . " Assets \n";
     }
 
     //PLR configs:
     echo "\n Product Link Rules: \n";
-    foreach($assetFamilyWithNumberOfAssets as $key => $value) {
+    foreach ($assetFamilyWithNumberOfAssets as $key => $value) {
         echo "- " . $key . "\n";
         if (isset($value['naming_convention']['pattern'])) {
-            echo isset($value['naming_convention']) ? "Naming Convention: " . $value['naming_convention']['pattern'] . "\n" : "";
+            echo isset($value['naming_convention']) ? "Naming Convention: " . "\033[31m" . $value['naming_convention']['pattern'] . "\033[0m" . "\n" : "";
         }
+
         if (isset($value['product_link_rule'])) {
             foreach ($value['product_link_rule'] as $plr) {
                 var_dump($plr);
@@ -192,7 +194,7 @@ function analyzeProductAssociations($client): void
     echo "Products with 1 or more associations: \n";
     foreach ($productWithAssocs as $key => $value) {
         if ($value > 0) {
-            echo $_ENV["BASE_URI"] . "#/enrich/product/" . $key . " = " . $value . "\n";
+            echo $_ENV["BASE_URI"] . "#/enrich/product/" . "\033[31m" . $key . "\033[0m" . " = " . $value . "\n";
         }
     }
 }
