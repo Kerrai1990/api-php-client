@@ -52,33 +52,22 @@ $client = $clientBuilder->buildAuthenticatedByPassword(
 //Authenticate
 $token = $client->getToken();
 
-echo "### ###  ###  ##  #### ##    ####   #### ##    ####   ### ###   ## ## \n";
-echo "##  ##    ## ##  # ## ##     ##    # ## ##     ##     ##  ##  ##   ## \n";
-echo "##       # ## #    ##        ##      ##        ##     ##      #### \n";
-echo "## ##    ## ##     ##        ##      ##        ##     ## ##    ##### \n";
-echo "##       ##  ##    ##        ##      ##        ##     ##          ### \n";
-echo "##  ##   ##  ##    ##        ##      ##        ##     ##  ##  ##   ## \n";
-echo "### ###  ###  ##   ####      ####    ####      ####   ### ###   ## ## \n";
+echo "######################\n";
+echo "# Reference Entities #\n";
+echo "######################\n";
+
 echo "Analysing Reference Entities... \n";
 analyzeReferenceEntities($client);
 
-echo " ###     #####    #####   #######   # #####  ##### \n";
-echo "## ##   ##   ##  ##   ##   ##   #  ## ## ## ##   ## \n";
-echo "##   ##  ##       ##        ##         ##    ## \n";
-echo "##   ##   #####    #####    ####       ##     ##### \n";
-echo "#######       ##       ##   ##         ##         ## \n";
-echo "##   ##  ##   ##  ##   ##   ##   #     ##    ##   ## \n";
-echo "##   ##   #####    #####   #######    ####    ##### \n";
+echo "######################\n";
+echo "####### Assets #######\n";
+echo "######################\n";
 echo "Analysing Asset Families... \n";
 analyzeAssetFamilies($client);
 
-echo " ##      ####     ####     ####     ####     #### \n";
-echo "####    ##  ##   ##  ##   ##  ##   ##  ##   ##  ## \n";
-echo "##  ##   ##       ##       ##  ##   ##       ## \n";
-echo "######    ####     ####    ##  ##   ##        #### \n";
-echo "##  ##       ##       ##   ##  ##   ##           ## \n";
-echo "##  ##   ##  ##   ##  ##   ##  ##   ##  ##   ##  ## \n";
-echo "##  ##    ####     ####     ####     ####     #### \n";
+echo "######################\n";
+echo "# Prod Associations ##\n";
+echo "######################\n";
 echo "Analysing Product Associations... This might take a while... \n";
 analyzeProductAssociations($client);
 
