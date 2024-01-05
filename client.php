@@ -52,6 +52,22 @@ $client = $clientBuilder->buildAuthenticatedByPassword(
 //Authenticate
 $token = $client->getToken();
 
+//ATTRIBUTES
+$allAttributes = [];
+$attributeRequest = $client->getAttributeApi()->all();
+foreach ($attributeRequest as $attr) {
+    $allAttributes[] = $attr['code'];
+}
+
+//FAMILIES
+$allFamilies = [];
+$familiesRequest = $client->getFamilyApi()->all(100);
+foreach ($familiesRequest as $fam) {
+    foreach ($fam['attributes'] as $famAttr) {
+        $allFamilies[] = $famAttr;
+    }
+}
+
 echo "######################\n";
 echo "# Reference Entities #\n";
 echo "######################\n";
@@ -138,7 +154,7 @@ function analyzeAssetFamilies($client): void
 
     echo "Breakdown of Asset Families: \n";
     foreach ($assetFamilyWithNumberOfAssets as $key => $value) {
-        echo "- " . "\033[31m" . $key . "\033[0m" . " - " . $value['asset_count'] . " Assets \n";
+        echo "- " . red($key) . " - " . $value['asset_count'] . " Assets \n";
     }
 
     //PLR configs:
@@ -146,7 +162,7 @@ function analyzeAssetFamilies($client): void
     foreach ($assetFamilyWithNumberOfAssets as $key => $value) {
         echo "- " . $key . "\n";
         if (isset($value['naming_convention']['pattern'])) {
-            echo isset($value['naming_convention']) ? "Naming Convention: " . "\033[31m" . $value['naming_convention']['pattern'] . "\033[0m" . "\n" : "";
+            echo isset($value['naming_convention']) ? "Naming Convention: " . red($value['naming_convention']['pattern']) . "\n" : "";
         }
 
         if (isset($value['product_link_rule'])) {
@@ -183,7 +199,7 @@ function analyzeProductAssociations($client): void
     echo "Products with 1 or more associations: \n";
     foreach ($productWithAssocs as $key => $value) {
         if ($value > 0) {
-            echo $_ENV["BASE_URI"] . "#/enrich/product/" . "\033[31m" . $key . "\033[0m" . " = " . $value . "\n";
+            echo $_ENV["BASE_URI"] . "#/enrich/product/" . red($key) . " = " . $value . "\n";
         }
     }
 }
@@ -224,53 +240,19 @@ function aggregateAssociationsPerProduct($page): array
     return $productWithAssocs;
 }
 
-function analyseProductFamilies($client)
+/**
+ * @param $string
+ * @return string
+ */
+function red($string): string
 {
-    //Get Duplicate Family attributes
-    //$familiesWithAttributeRequirements = [];
-    //$families = $client->getFamilyApi()->all(100);
-    ////$families[] = $client->getFamilyApi()->get('accessories');
-    //
-    //foreach ($families as $family) {
-    //    $familiesWithAttributeRequirements[$family['code']] = [
-    //        'attributes' => $family['attributes'],
-    //        'attribute_requirements' => $family['attribute_requirements'],
-    //    ];
-    //    $attributeWithType = [];
-    //    foreach ($family['attributes'] as $attribute) {
-    //        $attributeType = $client->getAttributeApi()->get($attribute)['type'];
-    //        $attributeWithType[] = [
-    //            'attribute' => $attribute,
-    //            'attribute_type' => $attributeType
-    //        ];
-    //    }
-    //    $familiesWithAttributeRequirements[$family['code']]['attributes'] = $attributeWithType;
-    //    $attributeWithType = [];
-    //}
-    //
-    //$requiredAttribute = [];
-    //
-    //echo "Breakdown of Families and their attributes \n";
-    //foreach ($familiesWithAttributeRequirements as $key => $values) {
-    //    echo "Family: '" . $key . "'\n";
-    //    foreach ($values['attributes'] as $attribute) {
-    //        foreach ($values['attribute_requirements'] as $key => $value) {
-    //            if (in_array($attribute['attribute'], $value)) {
-    //                $requiredAttribute[$attribute['attribute']][] = $key;
-    //            }
-    //        }
-    //
-    //        echo $attribute['attribute'] . " - " . strtolower($ATTRIBUTE_TYPES[$attribute['attribute_type']]);
-    //        if (isset($requiredAttribute[$attribute['attribute']])) {
-    //            echo " (Required for channel(s): " . implode(", ", $requiredAttribute[$attribute['attribute']]) . ")";
-    //        }
-    //        echo "\n";
-    //
-    //        unset($requiredAttribute);
-    //    }
-    //}
-    //echo "End of Families + Attributes \n\n";
-    //die;
+    return "\033[31m" . $string . "\033[0m";
 }
 
-echo "end. \n";
+
+
+
+
+
+
+
