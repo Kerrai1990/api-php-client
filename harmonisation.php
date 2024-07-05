@@ -222,7 +222,7 @@ foreach($referenceRequest as $referenceEntity) {
                 echo($attr['value_per_channel'] ? "scopable" : "");
                 echo "]";
             }
-            if ($value['structure']['attribute_as_main_media'] == $attr['code']) {
+            if (isset($value['structure']['attribute_as_main_media']) && $value['structure']['attribute_as_main_media'] == $attr['code']) {
                 echo "--> Main media image";
             }
             echo "\n";
@@ -234,9 +234,9 @@ foreach($referenceRequest as $referenceEntity) {
 var_dump($referenceEntitiesWithAttributes);
 
 
-//getUnusedProductAttributes($allAttributes, $allFamilies, $familiesRequest);
-//getDuplicateFamiles($familiesRequest);
-//getAssetFamilies($client);
+getUnusedProductAttributes($allAttributes, $allFamilies, $familiesRequest);
+getDuplicateFamiles($familiesRequest);
+getAssetFamilies($client);
 //getReferenceEntitityFamilies($client);
 
 function getReferenceEntitiyFamilies($client)

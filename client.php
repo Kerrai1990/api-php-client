@@ -212,6 +212,7 @@ function analyzeProductAssociations($client): void
  */
 function aggregateAssociationsPerProduct($page): array
 {
+    $productWithAssocs = [];
     //Run through each product, and capture their 'associations'.
     //Taking each assoc, count the number
     foreach ($page as $product) {
