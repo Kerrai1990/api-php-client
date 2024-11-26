@@ -196,9 +196,9 @@ function analyzeProductAssociations($client): void
     //Ordered by number of associations.
     //Only show products with 1 or more associations.
     arsort($productWithAssocs);
-    echo "Products with 1 or more associations: \n";
+    echo "Products with 20 or more associations: \n";
     foreach ($productWithAssocs as $key => $value) {
-        if ($value > 0) {
+        if ($value > 20) {
             echo $_ENV["BASE_URI"] . "#/enrich/product/" . red($key) . " = " . $value . "\n";
         }
     }
